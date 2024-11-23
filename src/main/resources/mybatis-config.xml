@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <typeAliases>
+        <package name="com.yz.entity"/>
+    </typeAliases>
+
+    <typeHandlers>
+        <typeHandler handler="com.yz.typehandler.MyTypeHandler"/>
+    </typeHandlers>
+
+    <plugins>
+        <plugin interceptor="com.yz.interceptor.MyInterceptor"/>
+    </plugins>
+
+
+    <!--环境-->
+    <environments default="dev">
+        <environment id="dev">
+            <transactionManager type="JDBC"/> <!--事务管理器-->
+            <dataSource  type="POOLED">
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/world"/>
+                <property name="username" value="root"/>
+                <property name="password" value="zz13818411003"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <mapper resource="mapper/plus/CityMapper.xml"/>
+        <mapper resource="mapper/TestMapper.xml"/>
+    </mappers>
+</configuration>

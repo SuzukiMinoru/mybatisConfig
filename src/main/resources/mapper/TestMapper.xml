@@ -1,0 +1,111 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yz.mapper.TestMapper">
+
+    <cache
+      eviction="FIFO"
+      flushInterval="60000"
+      size = "512"
+      readOnly= "true"/>
+
+    <select id="selectEuro" resultType="java.lang.String">
+        select Name from country where continent = 'Europe'
+    </select>
+
+    <select id="selectCapitalByCountry" resultMap="capitalCityToCity">
+        select c.Name, c.CountryCode, c.District, c.Population from city c inner join country on c.ID = country.Capital where country.name =  #{country}
+    </select>
+
+    <select id="selectCountryByName" resultMap="countryToCountry">
+        select
+        c1.`Name` cityName,
+        c1.Population cityPopulation,
+        c1.CountryCode cityCountryCode,
+        c1.`District`,
+        c2.`Name`,
+        c2.Continent,
+        c2.Region,
+        c2.LocalName,
+        c2.HeadOfState,
+        c2.GovernmentForm
+        from city c1 inner join country c2 on c1.ID = c2.Capital
+        where c2.name = #{country};
+    </select>
+
+    <select id="selectCountryByName0" resultMap="countryToCountry0">
+        select
+        `Name`,
+        Continent,
+        Region,
+        LocalName,
+        HeadOfState,
+        GovernmentForm,
+        Capital,
+        Code
+        from country
+        where Name = #{country};
+    </select>
+
+    <resultMap id="countryToCountry0" type="Country">
+        <result column="Name" property="countryName"/>
+        <result column="Continent" property="continent"/>
+        <result column="Region" property="region"/>
+        <result column="LocalName" property="localName"/>
+        <result column="Code" property="countryCode"/>
+        <result column="HeadOfState" property="headOfState"/>
+        <result column="GovernmentForm" property="governmentForm"/>
+        <association property="capital" column="Capital" select="selectCityByID"/>
+        <collection property="cities" ofType="City" column="Code" select = "selectCitiesByCountryCode"/>
+    </resultMap>
+
+
+    <select id="selectCitiesByCountryCode" resultType="City">
+        select
+        `Name` cityName,
+        Population,
+        District,
+        CountryCode
+        from city
+        where CountryCode = #{countryCode}
+    </select>
+    <select id="selectCityByID" resultType="City">
+        select
+        `Name` cityName,
+        Population,
+        District,
+        CountryCode
+        from city
+        where ID = #{id}
+    </select>
+
+    <resultMap id="countryToCountry" type="Country">
+        <result column="Name" property="countryName"/>
+        <result column="cityCountryCode" property="countryCode"/>
+        <result column="Continent" property="continent"/>
+        <result column="Region" property="region"/>
+        <result column="LocalName" property="localName"/>
+        <result column="HeadOfState" property="headOfState"/>
+        <result column="GovernmentForm" property="governmentForm"/>
+        <association property="capital" javaType="City">
+            <result column="cityName" property="cityName"/>
+            <result column="cityCountryCode" property="countryCode"/>
+            <result column="District" property="district"/>
+            <result column="cityPopulation" property="population"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="capitalCityToCity" type="City">
+        <result column="Name" property="cityName"/>
+        <result column="CountryCode" property="countryCode"/>
+        <result column="District" property="district"/>
+        <result column="Population" property="population"/>
+    </resultMap>
+
+    <insert id="insertCountry">
+        insert into country
+        (Code, Name, Continent, Region, LocalName, GovernmentForm, HeadOfState, Capital)
+        values(#{countryCode}, #{countryName}, #{continent}, #{region}, #{localName}, #{governmentForm}, #{headOfState}, #{capital} )
+    </insert>
+</mapper>
